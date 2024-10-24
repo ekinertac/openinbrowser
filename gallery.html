@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk {{TITLE}}</title>
+    <style>
+        :root {
+            --background-color: #f0f0f0;
+            --text-color: #333;
+            --caption-bg: rgba(0, 0, 0, 0.7);
+            --caption-color: white;
+            --switch-bg: #e9e9eb;
+            --switch-circle: #ffffff;
+        }
+
+        .dark-theme {
+            --background-color: #333;
+            --text-color: #f0f0f0;
+            --caption-bg: rgba(255, 255, 255, 0.7);
+            --caption-color: black;
+            --switch-bg: #34c759;
+            --switch-circle: #ffffff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 80%;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            height: 48.5vh;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-link {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--caption-bg);
+            color: var(--caption-color);
+            padding: 0.5rem;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .image-caption {
+            opacity: 1;
+        }
+
+        .theme-switch-wrapper {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: var(--switch-bg);
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            background-color: var(--switch-circle);
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--switch-bg);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider"></div>
+        </label>
+    </div>
+
+    <div class="gallery" id="imageGallery">
+        {{IMAGES}}
+    </div>
+
+    <script>
+        const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+        const currentTheme = localStorage.getItem('theme');
+
+        // Function to set the theme
+        function setTheme(theme) {
+            document.documentElement.setAttribute('class', theme);
+            localStorage.setItem('theme', theme);
+            toggleSwitch.checked = (theme === 'dark-theme');
+        }
+
+        // Check for saved user preference, if any, on load of the website
+        if (currentTheme) {
+            setTheme(currentTheme);
+        } else {
+            // If no saved preference, check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setTheme('dark-theme');
+            } else {
+                setTheme('light-theme');
+            }
+        }
+
+        // Listen for toggle switch change
+        function switchTheme(e) {
+            if (e.target.checked) {
+                setTheme('dark-theme');
+            } else {
+                setTheme('light-theme');
+            }    
+        }
+
+        toggleSwitch.addEventListener('change', switchTheme, false);
+
+        // Listen for system theme change
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            const newTheme = e.matches ? 'dark-theme' : 'light-theme';
+            setTheme(newTheme);
+        });
+
+        // Function to scroll the page by viewport height
+        function scrollByViewportHeight(direction) {
+            const viewportHeight = window.innerHeight;
+            const scrollAmount = direction === 'up' ? -viewportHeight : viewportHeight;
+            
+            window.scrollBy({
+                top: scrollAmount,
+                behavior: 'instant'
+            });
+        }
+
+        // Event listener for keydown events
+        document.addEventListener('keydown', function(event) {
+            switch (event.key) {
+                case 'PageUp':
+                    event.preventDefault();
+                    scrollByViewportHeight('up');
+                    break;
+                case 'PageDown':
+                    event.preventDefault();
+                    scrollByViewportHeight('down');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
