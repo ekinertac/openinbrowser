@@ -33,8 +33,41 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
     setTheme(e.matches ? 'dark-theme' : 'light-theme');
 });
 
+// Function to update breadcrumbs
+function updateBreadcrumbs(path) {
+    const breadcrumbs = document.querySelector('#breadcrumbs ol');
+    breadcrumbs.innerHTML = '<li><a href="#" onclick="loadHome(); return false;">Home</a></li>';
+
+    if (path) {
+        const folders = path.split('/');
+        let currentPath = '';
+        folders.forEach((folder, index) => {
+            currentPath += folder + '/';
+            breadcrumbs.innerHTML += `
+                <li>
+                    <a href="#" onclick="loadFolder('${currentPath.slice(0, -1)}', true); return false;">
+                        ${folder}
+                    </a>
+                </li>
+            `;
+        });
+    }
+}
+
+// Function to load home page
+function loadHome() {
+    fetch('/api/items')
+        .then(response => response.json())
+        .then(data => {
+            updateGallery(data);
+            updateBreadcrumbs('');
+            history.pushState({folderPath: ''}, '', '/');
+        })
+        .catch(error => console.error("Error loading home:", error));
+}
+
 // Function to load folder contents
-function loadFolder(folderPath) {
+function loadFolder(folderPath, pushState = true) {
     // Remove the leading 'folder/' if it exists
     const cleanPath = folderPath.replace(/^folder\//, '');
     fetch(`/api/folder/${cleanPath}`)
@@ -45,6 +78,10 @@ function loadFolder(folderPath) {
                 return;
             }
             updateGallery(data.items);
+            updateBreadcrumbs(cleanPath);
+            if (pushState) {
+                history.pushState({folderPath: cleanPath}, '', `/folder/${cleanPath}`);
+            }
         })
         .catch(error => console.error("Error loading folder:", error));
 }
@@ -79,6 +116,26 @@ function updateGallery(items) {
         gallery.appendChild(itemDiv);
     });
 }
+
+// Handle popstate event (browser back/forward)
+window.addEventListener('popstate', function(event) {
+    if (event.state && event.state.folderPath) {
+        loadFolder(event.state.folderPath, false);
+    } else {
+        // Load root folder
+        loadHome();
+    }
+});
+
+// Initial load based on current URL
+document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname.replace(/^\/folder\//, '');
+    if (path) {
+        loadFolder(path, false);
+    } else {
+        loadHome();
+    }
+});
 
 // Scroll by viewport height with PageUp/PageDown keys
 document.addEventListener('keydown', function(event) {

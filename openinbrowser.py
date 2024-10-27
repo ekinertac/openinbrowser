@@ -140,6 +140,14 @@ def monitor_exit():
     os.kill(os.getpid(), signal.SIGTERM)  # Send SIGTERM to the current process
 
 
+# Serve the same HTML as the root route for folders
+@app.route("/folder/<path:folder_path>")
+def serve_folder(folder_path):
+    # This route will serve the same HTML as the root route
+    # The JavaScript will handle loading the correct folder contents
+    return gallery()
+
+
 if __name__ == "__main__":
     # Get the folder path from the command-line argument
     if len(sys.argv) > 1:
