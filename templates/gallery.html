@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosk {{ TITLE }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider"></div>
+        </label>
+    </div>
+
+    <div id="gallery" class="gallery">
+        {% for item in ITEMS %}
+            {% if item.type == "file" %}
+                <div class="gallery-item">
+                    <a href="/{{ item.path }}" class="gallery-link" target="_blank">
+                        <img src="/{{ item.path }}" alt="{{ item.name }}" class="gallery-image">
+                        <div class="image-caption">{{ item.name }}</div>
+                    </a>
+                </div>
+            {% elif item.type == "folder" %}
+                <div class="gallery-item folder" onclick="loadFolder('{{ item.path }}')">
+                    <div class="folder-collage">
+                        {% for preview_image in item.preview_images %}
+                            <img src="/{{ preview_image }}" class="collage-image" alt="Folder Preview">
+                        {% endfor %}
+                    </div>
+                    <div class="folder-caption">{{ item.name }}</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+:root {
+  --background-color: #f0f0f0;
+  --text-color: #333;
+  --caption-bg: rgba(0, 0, 0, 0.7);
+  --caption-color: white;
+  --switch-bg: #e9e9eb;
+  --switch-circle: #ffffff;
+}
+
+.dark-theme {
+  --background-color: #333;
+  --text-color: #f0f0f0;
+  --caption-bg: rgba(255, 255, 255, 0.7);
+  --caption-color: black;
+  --switch-bg: #34c759;
+  --switch-circle: #ffffff;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* Updated to your specifications */
+  gap: 10px;
+  padding: 10px;
+}
+
+.gallery-item {
+  width: 100%;
+  height: 570px; /* Updated to your specifications */
+  border: 1px solid #ccc;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+}
+
+.gallery-link, .gallery-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Ensure the entire folder area is clickable */
+.folder a.gallery-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.folder-collage {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3x3 grid for the collage */
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.collage-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-caption, .folder-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--caption-bg);
+  color: var(--caption-color);
+  padding: 0.5rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gallery-item:hover .image-caption, .gallery-item:hover .folder-caption {
+  opacity: 1;
+}
+
+.theme-switch-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.theme-switch {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.theme-switch input {
+  display: none;
+}
+
+.slider {
+  background-color: var(--switch-bg);
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  background-color: var(--switch-circle);
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 26px;
+  border-radius: 50%;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
